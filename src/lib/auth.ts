@@ -21,13 +21,6 @@ export function buildLoginUrl() {
         redirect_uri: COGNITO_REDIRECT_URI,
     });
 
-    const loginUrl =
-        `${COGNITO_DOMAIN}/login` +
-        `?client_id=${COGNITO_CLIENT_ID}` +
-        `&response_type=token` +
-        `&scope=openid+email` +
-        `&redirect_uri=${encodeURIComponent(COGNITO_REDIRECT_URI)}`;
-
 
     return `${base}?${params.toString()}`;
 }

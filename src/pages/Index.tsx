@@ -23,7 +23,7 @@ const Index = () => {
     const { data: memories, isLoading, error } = useQuery({
         queryKey: ["memories"],
         queryFn: () => listMemories(),
-        enabled: isLoggedIn, // só busca se estiver logado
+        enabled: logged, // só busca se estiver logado
     });
 
   return (
