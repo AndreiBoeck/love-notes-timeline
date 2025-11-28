@@ -7,26 +7,57 @@ import { Card } from "@/components/ui/card";
 import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/DatePicker";
+import { createMemory, getPresignedUrl, uploadFileToPresignedUrl } from "@/lib/api";
 
 export default function AddEntry() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState<Date | undefined>();
-  const navigate = useNavigate();
+    const [file, setFile] = useState<File | null>(null);
+    const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!title || !date) {
-      toast.error("Por favor, preencha todos os campos");
-      return;
-    }
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-    // Mock save - in production would save to database
-    toast.success("Memória adicionada com sucesso! ❤️");
-    navigate("/");
-  };
+        if (!title || !date) {
+            toast.error("Por favor, preencha todos os campos");
+            return;
+        }
 
-  return (
+        try {
+            let fileKey = "placeholder";
+
+            if (file) {
+                // 1) pega URL pré-assinada
+                const { uploadUrl, fileKey: key } = await getPresignedUrl({
+                    filename: file.name,
+                    contentType: file.type || "application/octet-stream",
+                });
+
+                // 2) faz upload pro S3
+                await uploadFileToPresignedUrl(uploadUrl, file);
+
+                fileKey = key;
+            }
+
+            // 3) cria memória no DynamoDB
+            await createMemory({
+                title,
+                description: "",
+                fileKey,
+                memoryDate: date.toISOString(),
+            });
+
+            toast.success("Memória adicionada com sucesso! ❤️");
+            navigate("/");
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Erro ao salvar memória. Tenta de novo, amorzinho.");
+        }
+    };
+
+
+
+    return (
     <div className="min-h-screen bg-gradient-to-br from-romantic-light via-background to-romantic-peach/20 p-4 py-12">
       <div className="container mx-auto max-w-2xl">
         <Button
@@ -68,10 +99,18 @@ export default function AddEntry() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="photos">Fotos (em breve)</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground">
-                Upload de fotos será adicionado em breve
-              </div>
+              <Label htmlFor="photos">Fotos</Label>
+
+                <Input
+                    id="file"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const selected = e.target.files?.[0] || null;
+                        setFile(selected);
+                    }}
+                    className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground"
+                />
             </div>
 
             <Button type="submit" className="w-full" size="lg">
