@@ -44,7 +44,7 @@ const Index = () => {
                           <TimelineEntry
                               key={m.id}
                               title={m.title}
-                              date={new Date(m.memoryDate)}
+                              date={m.memoryDate}
                               photos={[]} // aqui depois você pode mapear fileKey -> URL do S3/CDN
                               isLeft={index % 2 === 0}
                           />
