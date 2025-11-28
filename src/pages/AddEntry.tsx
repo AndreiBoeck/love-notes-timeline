@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/DatePicker";
 
 export default function AddEntry() {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState<Date | undefined>();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,12 +60,10 @@ export default function AddEntry() {
 
             <div className="space-y-2">
               <Label htmlFor="date">Data</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
+              <DatePicker 
+                date={date}
+                onDateChange={setDate}
+                placeholder="Escolha a data desta memória especial"
               />
             </div>
 
