@@ -56,12 +56,14 @@ export default function AddEntry() {
             const memoryDate = format(date, "yyyy-MM-dd");
 
             // 3) Cria a memória no back
+            //    👉 imagens são opcionais: se não tiver nenhuma, nem manda fileKeys
             await createMemory({
                 title,
                 description: "",
-                fileKeys,
                 memoryDate,
+                fileKeys, // sempre manda, mesmo que seja []
             });
+
 
             toast.success("Memória adicionada com sucesso! ❤️");
             navigate("/");
