@@ -40,15 +40,27 @@ const Index = () => {
                   {error && <p>Erro ao carregar memórias.</p>}
 
                   {memories &&
-                      memories.map((m, index) => (
-                          <TimelineEntry
-                              key={m.id}
-                              title={m.title}
-                              date={m.memoryDate}
-                              photos={m.fileKey || []} // aqui depois você pode mapear fileKey -> URL do S3/CDN
-                              isLeft={index % 2 === 0}
-                          />
-                      ))}
+                      memories.map((m, index) => {
+                          // Normaliza as fotos: sempre vira array
+                          const photos =
+                              Array.isArray(m.fileKeys)
+                                  ? m.fileKeys
+                                  : m.fileKey
+                                      ? [m.fileKey]
+                                      : [];
+
+                          return (
+                              <TimelineEntry
+                                  key={m.id}
+                                  title={m.title}
+                                  // se TimelineEntry espera Date, normaliza aqui:
+                                  date={m.memoryDateIso ? m.memoryDate : m.memoryDate}
+                                  photos={photos}
+                                  isLeft={index % 2 === 0}
+                              />
+                          );
+                      })}
+
               </div>
           </div>
         </div>
