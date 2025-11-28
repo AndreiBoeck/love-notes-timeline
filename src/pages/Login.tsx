@@ -8,16 +8,20 @@ import { Button } from "@/components/ui/button";
 export default function Login() {
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        const url = buildLoginUrl();
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const domain = import.meta.env.VITE_COGNITO_DOMAIN;
+        const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+        const redirectUri = import.meta.env.VITE_COGNITO_REDIRECT_URI;
+
+        const url =
+            `${domain}/login?client_id=${clientId}` +
+            `&response_type=token&scope=openid+email` +
+            `&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
         window.location.href = url;
     };
-
-    useEffect(() => {
-        // se já tiver token, manda pra home
-        // (caso alguém acesse /login já logado)
-        // você pode reforçar isso usando isLoggedIn() se quiser
-    }, []);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-romantic-light via-background to-romantic-peach/20 p-4">
