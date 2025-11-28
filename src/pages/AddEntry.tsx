@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import { DatePicker } from "@/components/DatePicker";
 import { createMemory, getPresignedUrl, uploadFileToPresignedUrl } from "@/lib/api";
 
@@ -39,21 +40,33 @@ export default function AddEntry() {
                 fileKey = key;
             }
 
-            // 3) cria memória no DynamoDB
+            if (!date) {
+                toast.error("Por favor, escolha uma data");
+                return;
+            }
+
+// Isso gera "2025-01-01"
+            const memoryDate = format(date, "dd/MM/yyyy");
+
             await createMemory({
                 title,
                 description: "",
                 fileKey,
-                memoryDate: date.toISOString(),
+                memoryDate, // aqui vai "2025-01-01" e não mais um ISO gigante
             });
 
             toast.success("Memória adicionada com sucesso! ❤️");
             navigate("/");
         } catch (err: any) {
-            console.error(err);
-            toast.error("Erro ao salvar memória. Tenta de novo, amorzinho.");
-        }
-    };
+        console.error(err);
+        toast.error(
+            err instanceof Error
+                ? `Erro ao salvar memória: ${err.message}`
+                : "Erro ao salvar memória. Tenta de novo, amorzinho."
+        );
+    }
+
+};
 
 
 
