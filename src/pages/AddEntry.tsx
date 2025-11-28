@@ -1,137 +1,136 @@
+// src/pages/AddEntry.tsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Heart, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import { DatePicker } from "@/components/DatePicker";
+import { toast } from "react-hot-toast";
+import { FileIcon, UploadIcon } from "lucide-react";
 import { createMemory, getPresignedUrl, uploadFileToPresignedUrl } from "@/lib/api";
+import { DatePicker } from "@/components/DatePicker";
+import { format } from "date-fns";
 
-export default function AddEntry() {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState<Date | undefined>();
-    const [file, setFile] = useState<File | null>(null);
+const AddEntry = () => {
     const navigate = useNavigate();
+
+    const [title, setTitle] = useState("");
+    const [date, setDate] = useState<Date | undefined>(undefined);
+    const [file, setFile] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!title || !date) {
-            toast.error("Por favor, preencha todos os campos");
+            toast.error("Preencha o título e a data, meu amorzinho 💞");
             return;
         }
 
         try {
             let fileKey = "placeholder";
 
+            // Upload do arquivo se existir
             if (file) {
-                // 1) pega URL pré-assinada
                 const { uploadUrl, fileKey: key } = await getPresignedUrl({
                     filename: file.name,
                     contentType: file.type || "application/octet-stream",
                 });
 
-                // 2) faz upload pro S3
                 await uploadFileToPresignedUrl(uploadUrl, file);
 
                 fileKey = key;
             }
 
-            if (!date) {
-                toast.error("Por favor, escolha uma data");
-                return;
-            }
-
-// Isso gera "2025-01-01"
-            const memoryDate = format(date, "dd/MM/yyyy");
+            // Converter data selecionada para yyyy-MM-dd (sem fuso!)
+            const memoryDate = format(date, "yyyy-MM-dd");
 
             await createMemory({
                 title,
                 description: "",
                 fileKey,
-                memoryDate, // aqui vai "2025-01-01" e não mais um ISO gigante
+                memoryDate,
             });
 
             toast.success("Memória adicionada com sucesso! ❤️");
             navigate("/");
         } catch (err: any) {
-        console.error(err);
-        toast.error(
-            err instanceof Error
-                ? `Erro ao salvar memória: ${err.message}`
-                : "Erro ao salvar memória. Tenta de novo, amorzinho."
-        );
-    }
-
-};
-
-
+            console.error("Erro ao criar memória:", err);
+            toast.error(
+                err instanceof Error
+                    ? `Erro ao salvar memória: ${err.message}`
+                    : "Erro ao salvar memória 😥"
+            );
+        }
+    };
 
     return (
-    <div className="min-h-screen bg-gradient-to-br from-romantic-light via-background to-romantic-peach/20 p-4 py-12">
-      <div className="container mx-auto max-w-2xl">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </Button>
+        <div className="container mx-auto px-4 py-16 max-w-lg">
+            <h1 className="text-3xl font-semibold text-romantic-pink mb-6">
+                Adicionar Memória 💖
+            </h1>
 
-        <Card className="p-8 shadow-romantic">
-          <div className="text-center mb-8">
-            <Heart className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-            <h1 className="text-3xl font-bold text-primary mb-2">Adicionar Nova Memória</h1>
-            <p className="text-muted-foreground">Guarde mais um momento especial nosso</p>
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título da Memória</Label>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Ex: Nosso primeiro encontro"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
+                {/* Título */}
+                <div>
+                    <label className="block mb-2 font-medium text-romantic-dark">
+                        Título
+                    </label>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full p-3 rounded-md border border-romantic-light focus:outline-none focus:ring focus:ring-romantic-pink/40"
+                        placeholder="Ex: Nosso primeiro encontro..."
+                        required
+                    />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="date">Data</Label>
-              <DatePicker 
-                date={date}
-                onDateChange={setDate}
-                placeholder="Escolha a data desta memória especial"
-              />
-            </div>
+                {/* DatePicker */}
+                <div>
+                    <label className="block mb-2 font-medium text-romantic-dark">
+                        Data da memória
+                    </label>
+                    <DatePicker date={date} onDateChange={setDate} placeholder="Escolha a data" />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="photos">Fotos</Label>
+                {/* Upload de arquivo */}
+                <div>
+                    <label className="block mb-2 font-medium text-romantic-dark">
+                        Foto (opcional)
+                    </label>
 
-                <Input
-                    id="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                        const selected = e.target.files?.[0] || null;
-                        setFile(selected);
-                    }}
-                    className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground"
-                />
-            </div>
+                    <div className="flex items-center gap-3">
+                        <label className="cursor-pointer px-3 py-2 bg-romantic-pink text-white rounded-md hover:bg-romantic-coral transition flex items-center gap-2">
+                            <UploadIcon size={18} />
+                            Escolher arquivo
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const f = e.target.files?.[0];
+                                    if (f) setFile(f);
+                                }}
+                            />
+                        </label>
 
-            <Button type="submit" className="w-full" size="lg">
-              Salvar Memória
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </div>
-  );
-}
+                        {file && (
+                            <div className="flex items-center gap-2 text-romantic-dark">
+                                <FileIcon size={20} />
+                                <span>{file.name}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Botão */}
+                <button
+                    type="submit"
+                    className="w-full bg-romantic-pink text-white py-3 rounded-md font-semibold hover:bg-romantic-coral transition"
+                >
+                    Salvar memória 💌
+                </button>
+            </form>
+        </div>
+    );
+};
+
+export default AddEntry;

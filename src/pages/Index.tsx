@@ -1,136 +1,60 @@
-// src/pages/AddEntry.tsx
+import { useState, useEffect } from "react";
+import { DiaryHeader } from "@/components/DiaryHeader";
+import { TimelineEntry } from "@/components/TimelineEntry";
+import { isLoggedIn, logout } from "@/lib/auth";
+import { listMemories, Memory } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import { FileIcon, UploadIcon } from "lucide-react";
-import { createMemory, getPresignedUrl, uploadFileToPresignedUrl } from "@/lib/api";
-import { DatePicker } from "@/components/DatePicker";
-import { format } from "date-fns";
 
-const AddEntry = () => {
-    const navigate = useNavigate();
 
-    const [title, setTitle] = useState("");
-    const [date, setDate] = useState<Date | undefined>(undefined);
-    const [file, setFile] = useState<File | null>(null);
+const Index = () => {
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const [logged, setLogged] = useState(false);
 
-        if (!title || !date) {
-            toast.error("Preencha o título e a data, meu amorzinho 💞");
-            return;
-        }
+    useEffect(() => {
+        setLogged(isLoggedIn());
+    }, []);
 
-        try {
-            let fileKey = "placeholder";
-
-            // Upload do arquivo se existir
-            if (file) {
-                const { uploadUrl, fileKey: key } = await getPresignedUrl({
-                    filename: file.name,
-                    contentType: file.type || "application/octet-stream",
-                });
-
-                await uploadFileToPresignedUrl(uploadUrl, file);
-
-                fileKey = key;
-            }
-
-            // Converter data selecionada para yyyy-MM-dd (sem fuso!)
-            const memoryDate = format(date, "yyyy-MM-dd");
-
-            await createMemory({
-                title,
-                description: "",
-                fileKey,
-                memoryDate,
-            });
-
-            toast.success("Memória adicionada com sucesso! ❤️");
-            navigate("/");
-        } catch (err: any) {
-            console.error("Erro ao criar memória:", err);
-            toast.error(
-                err instanceof Error
-                    ? `Erro ao salvar memória: ${err.message}`
-                    : "Erro ao salvar memória 😥"
-            );
-        }
+    const handleLogout = () => {
+        logout();
+        setLogged(false);
     };
 
-    return (
-        <div className="container mx-auto px-4 py-16 max-w-lg">
-            <h1 className="text-3xl font-semibold text-romantic-pink mb-6">
-                Adicionar Memória 💖
-            </h1>
+    const { data: memories, isLoading, error } = useQuery({
+        queryKey: ["memories"],
+        queryFn: () => listMemories(),
+        enabled: logged, // só busca se estiver logado
+    });
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-romantic-light/30 to-background">
+        <DiaryHeader isLoggedIn={logged} onLogout={handleLogout} />
 
-                {/* Título */}
-                <div>
-                    <label className="block mb-2 font-medium text-romantic-dark">
-                        Título
-                    </label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full p-3 rounded-md border border-romantic-light focus:outline-none focus:ring focus:ring-romantic-pink/40"
-                        placeholder="Ex: Nosso primeiro encontro..."
-                        required
-                    />
-                </div>
+        <main className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            {/* Timeline vertical line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-romantic-pink via-romantic-coral to-romantic-peach" />
+              <div className="space-y-8">
+                  {isLoading && <p>Carregando memórias...</p>}
+                  {error && <p>Erro ao carregar memórias.</p>}
 
-                {/* DatePicker */}
-                <div>
-                    <label className="block mb-2 font-medium text-romantic-dark">
-                        Data da memória
-                    </label>
-                    <DatePicker date={date} onDateChange={setDate} placeholder="Escolha a data" />
-                </div>
-
-                {/* Upload de arquivo */}
-                <div>
-                    <label className="block mb-2 font-medium text-romantic-dark">
-                        Foto (opcional)
-                    </label>
-
-                    <div className="flex items-center gap-3">
-                        <label className="cursor-pointer px-3 py-2 bg-romantic-pink text-white rounded-md hover:bg-romantic-coral transition flex items-center gap-2">
-                            <UploadIcon size={18} />
-                            Escolher arquivo
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    const f = e.target.files?.[0];
-                                    if (f) setFile(f);
-                                }}
-                            />
-                        </label>
-
-                        {file && (
-                            <div className="flex items-center gap-2 text-romantic-dark">
-                                <FileIcon size={20} />
-                                <span>{file.name}</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Botão */}
-                <button
-                    type="submit"
-                    className="w-full bg-romantic-pink text-white py-3 rounded-md font-semibold hover:bg-romantic-coral transition"
-                >
-                    Salvar memória 💌
-                </button>
-            </form>
+                  {memories &&
+                      memories.map((m, index) => (
+                          <TimelineEntry
+                              key={m.id}
+                              title={m.title}
+                              date={m.memoryDate}
+                              photos={[]} // aqui depois você pode mapear fileKey -> URL do S3/CDN
+                              isLeft={index % 2 === 0}
+                          />
+                      ))}
+              </div>
+          </div>
         </div>
-    );
+      </main>
+    </div>
+  );
 };
 
-export default AddEntry;
+export default Index;
