@@ -45,7 +45,7 @@ export interface Memory {
     id: string;
     title: string;
     description: string;
-    fileKey: string;
+    fileKey: string[];
     memoryDate: string;
     createdAt: string;
     updatedAt: string;
@@ -54,7 +54,7 @@ export interface Memory {
 export async function createMemory(input: {
     title: string;
     description: string;
-    fileKey: string;
+    fileKey: string[];
     memoryDate: string;
 }): Promise<Memory> {
     return apiFetch("/memories", {

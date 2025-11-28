@@ -45,7 +45,7 @@ const Index = () => {
                               key={m.id}
                               title={m.title}
                               date={m.memoryDate}
-                              photos={[]} // aqui depois você pode mapear fileKey -> URL do S3/CDN
+                              photos={m.fileKey || []} // aqui depois você pode mapear fileKey -> URL do S3/CDN
                               isLeft={index % 2 === 0}
                           />
                       ))}
