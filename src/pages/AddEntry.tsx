@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Heart, ArrowLeft, UploadCloud, Image as ImageIcon } from "lucide-react";
+import {
+    Heart,
+    ArrowLeft,
+    UploadCloud,
+    Image as ImageIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/DatePicker";
 import {
@@ -52,18 +57,17 @@ export default function AddEntry() {
                 fileKeys.push(fileKey);
             }
 
-            // 2) Data escolhida no DatePicker, sem fuso trollando
+            // 2) Data escolhida no DatePicker, sem fuso
             const memoryDate = format(date, "yyyy-MM-dd");
 
             // 3) Cria a memória no back
-            //    👉 imagens são opcionais: se não tiver nenhuma, nem manda fileKeys
+            //    👉 imagens são opcionais, mas sempre mandamos fileKeys (pode ser [])
             await createMemory({
                 title,
                 description: "",
                 memoryDate,
-                fileKeys, // sempre manda, mesmo que seja []
+                fileKeys,
             });
-
 
             toast.success("Memória adicionada com sucesso! ❤️");
             navigate("/");
