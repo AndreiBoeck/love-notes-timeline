@@ -21,6 +21,13 @@ export default function AddEntry() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
+    const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selected = event.target.files;
+        if (!selected) return;
+        const arr = Array.from(selected);
+        setFiles(arr);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -32,38 +39,29 @@ export default function AddEntry() {
         setIsSubmitting(true);
 
         try {
-            // 1) Upload das imagens (se tiver)
+            // 1) Faz upload de TODAS as imagens (se tiver)
             const fileKeys: string[] = [];
 
             for (const file of files) {
-                try {
-                    const { uploadUrl, fileKey } = await getPresignedUrl({
-                        filename: file.name,
-                        contentType: file.type || "application/octet-stream",
-                    });
+                const { uploadUrl, fileKey } = await getPresignedUrl({
+                    filename: file.name,
+                    contentType: file.type || "application/octet-stream",
+                });
 
-                    await uploadFileToPresignedUrl(uploadUrl, file);
-                    fileKeys.push(fileKey);
-                } catch (err) {
-                    console.error("Erro ao enviar arquivo:", file.name, err);
-                    toast.error(`Erro ao enviar a imagem "${file.name}" 😥`);
-                    setIsSubmitting(false);
-                    return;
-                }
+                await uploadFileToPresignedUrl(uploadUrl, file);
+                fileKeys.push(fileKey);
             }
 
-            // 2) Data escolhida no DatePicker em formato yyyy-MM-dd
+            // 2) Data escolhida no DatePicker, sem fuso trollando
             const memoryDate = format(date, "yyyy-MM-dd");
 
-            // 3) Criar memória no back
+            // 3) Cria a memória no back
             await createMemory({
                 title,
                 description: "",
-                // se o back ainda estiver esperando um único fileKey,
-                // você pode temporariamente usar fileKeys[0] aqui
-                fileKeys, // <- ideal: o back aceitar um array
+                fileKeys,
                 memoryDate,
-            } as any); // "as any" enquanto o tipo do createMemory não for ajustado para fileKeys
+            });
 
             toast.success("Memória adicionada com sucesso! ❤️");
             navigate("/");
@@ -77,14 +75,6 @@ export default function AddEntry() {
         } finally {
             setIsSubmitting(false);
         }
-    };
-
-    const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = event.target.files;
-        if (!selected) return;
-
-        const arr = Array.from(selected);
-        setFiles(arr);
     };
 
     return (
@@ -112,18 +102,19 @@ export default function AddEntry() {
                     </div>
 
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                        {/* Título */}
+                        {/* TÍTULO */}
                         <div className="space-y-2">
-                            <Label htmlFor="title">Título</Label>
+                            <Label htmlFor="title">Título da memória</Label>
                             <Input
                                 id="title"
+                                type="text"
+                                placeholder="Ex: Nosso primeiro encontro"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Ex: Nosso primeiro encontro"
                             />
                         </div>
 
-                        {/* Data */}
+                        {/* DATA */}
                         <div className="space-y-2">
                             <Label>Data da memória</Label>
                             <DatePicker
@@ -133,7 +124,7 @@ export default function AddEntry() {
                             />
                         </div>
 
-                        {/* Upload de várias imagens */}
+                        {/* IMAGENS */}
                         <div className="space-y-2">
                             <Label>Fotos (pode mandar várias 🥵)</Label>
                             <div className="flex flex-col gap-3">
@@ -157,7 +148,7 @@ export default function AddEntry() {
                                                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted"
                                             >
                                                 <ImageIcon className="w-3 h-3" />
-                                                <span className="max-w-[140px] truncate">
+                                                <span className="max-w-[160px] truncate">
                           {file.name}
                         </span>
                                             </div>
@@ -167,7 +158,7 @@ export default function AddEntry() {
 
                                 {files.length === 0 && (
                                     <p className="text-xs text-muted-foreground">
-                                        Você pode salvar a memória sem foto também, se quiser.
+                                        Se quiser, pode salvar sem foto também 💌
                                     </p>
                                 )}
                             </div>
@@ -179,7 +170,7 @@ export default function AddEntry() {
                             size="lg"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? "Salvando..." : "Salvar Memória 💌"}
+                            {isSubmitting ? "Salvando..." : "Salvar memória 💌"}
                         </Button>
                     </form>
                 </Card>
