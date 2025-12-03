@@ -41,8 +41,6 @@ const Index = () => {
                   {isLoading && <p>Carregando memórias...</p>}
                   {error && <p>Erro ao carregar memórias.</p>}
 
-                  <img src="https://love-notes-timeline-api-files-dev.s3.us-east-2.amazonaws.com/memories/813b8570-f061-70ca-ade0-27ab8989bf53/1764736628750-download.jpeg" alt="Teste" className="w-32 mx-auto mb-8"/>
-
                   {memories &&
                       memories.map((m, index) => {
                           // Normaliza as fotos: sempre vira array
