@@ -25,7 +25,7 @@ export const TimelinePhotoFan = ({ photos }: TimelinePhotoFanProps) => {
         return `${S3_BASE_URL}/${normalized}`;
     };
 
-    console.log(resolvePhotoUrl);
+    console.log(photos.map(resolvePhotoUrl));
 
     return (
         <div
