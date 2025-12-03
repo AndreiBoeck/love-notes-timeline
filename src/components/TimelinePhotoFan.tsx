@@ -7,7 +7,7 @@ interface TimelinePhotoFanProps {
 
 // Dominio onde as imagens realmente moram
 const S3_BASE_URL =
-    "https://2gn7ta94ac.execute-api.us-east-2.amazonaws.com";
+    "https://love-notes-timeline-api-files-dev.s3.us-east-2.amazonaws.com";
 
 export const TimelinePhotoFan = ({ photos }: TimelinePhotoFanProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
