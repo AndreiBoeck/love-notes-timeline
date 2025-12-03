@@ -26,6 +26,8 @@ const Index = () => {
         enabled: logged, // só busca se estiver logado
     });
 
+    console.log(memories);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-romantic-light/30 to-background">
         <DiaryHeader isLoggedIn={logged} onLogout={handleLogout} />
