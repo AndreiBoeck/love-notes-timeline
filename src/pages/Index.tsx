@@ -49,6 +49,8 @@ const Index = () => {
                                       ? [m.fileKey]
                                       : [];
 
+                          console.log(photos);
+
                           return (
                               <TimelineEntry
                                   key={m.id}
