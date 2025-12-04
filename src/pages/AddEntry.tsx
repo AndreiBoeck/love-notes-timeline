@@ -4,182 +4,82 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import {
-    Heart,
-    ArrowLeft,
-    UploadCloud,
-    Image as ImageIcon,
-} from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { DatePicker, formatDateForBackend } from "@/components/DatePicker";
-import {
-    createMemory,
-    getPresignedUrl,
-    uploadFileToPresignedUrl,
-} from "@/lib/api";
+import { DatePicker } from "@/components/DatePicker";
 
 export default function AddEntry() {
-    const [title, setTitle] = useState("");
-    const [date, setDate] = useState<Date | undefined>();
-    const [files, setFiles] = useState<File[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState<Date | undefined>();
+  const navigate = useNavigate();
 
-    const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = event.target.files;
-        if (!selected) return;
-        const arr = Array.from(selected);
-        setFiles(arr);
-    };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title || !date) {
+      toast.error("Por favor, preencha todos os campos");
+      return;
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Mock save - in production would save to database
+    toast.success("Memória adicionada com sucesso! ❤️");
+    navigate("/");
+  };
 
-        if (!title || !date) {
-            toast.error("Preenche o título e a data, amorzinho 💞");
-            return;
-        }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-romantic-light via-background to-romantic-peach/20 p-4 py-12">
+      <div className="container mx-auto max-w-2xl">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-6"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Voltar
+        </Button>
 
-        setIsSubmitting(true);
+        <Card className="p-8 shadow-romantic">
+          <div className="text-center mb-8">
+            <Heart className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+            <h1 className="text-3xl font-bold text-primary mb-2">Adicionar Nova Memória</h1>
+            <p className="text-muted-foreground">Guarde mais um momento especial nosso</p>
+          </div>
 
-        try {
-            // 1) Faz upload de TODAS as imagens (se tiver)
-            const fileKeys: string[] = [];
-
-            for (const file of files) {
-                const { uploadUrl, fileKey } = await getPresignedUrl({
-                    filename: file.name,
-                    contentType: file.type || "application/octet-stream",
-                });
-
-                await uploadFileToPresignedUrl(uploadUrl, file);
-                fileKeys.push(fileKey);
-            }
-
-            // 2) Data escolhida no DatePicker, formato dd-mm-yyyy
-            const memoryDate = formatDateForBackend(date);
-
-            // 3) Cria a memória no back
-            //    👉 imagens são opcionais, mas sempre mandamos fileKeys (pode ser [])
-            await createMemory({
-                title,
-                description: "",
-                memoryDate,
-                fileKeys,
-            });
-
-            toast.success("Memória adicionada com sucesso! ❤️");
-            navigate("/");
-        } catch (err: any) {
-            console.error("Erro ao criar memória:", err);
-            toast.error(
-                err instanceof Error
-                    ? `Erro ao salvar memória: ${err.message}`
-                    : "Erro ao salvar memória 😥"
-            );
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-background via-romantic-light/30 to-background">
-            <div className="container mx-auto px-4 py-8">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Voltar
-                </button>
-
-                <Card className="max-w-2xl mx-auto p-6 shadow-romantic">
-                    <div className="flex items-center gap-3 mb-6">
-                        <Heart className="w-6 h-6 text-primary animate-pulse" />
-                        <div>
-                            <h1 className="text-2xl font-bold text-primary">
-                                Nova memória de vocês 💖
-                            </h1>
-                            <p className="text-sm text-muted-foreground">
-                                Registra mais um momento fofinho na linha do tempo.
-                            </p>
-                        </div>
-                    </div>
-
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        {/* TÍTULO */}
-                        <div className="space-y-2">
-                            <Label htmlFor="title">Título da memória</Label>
-                            <Input
-                                id="title"
-                                type="text"
-                                placeholder="Ex: Nosso primeiro encontro"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
-                        </div>
-
-                        {/* DATA */}
-                        <div className="space-y-2">
-                            <Label>Data da memória</Label>
-                            <DatePicker
-                                date={date}
-                                onDateChange={setDate}
-                                placeholder="Escolhe a data desse momento"
-                            />
-                        </div>
-
-                        {/* IMAGENS */}
-                        <div className="space-y-2">
-                            <Label>Fotos (pode mandar várias 🥵)</Label>
-                            <div className="flex flex-col gap-3">
-                                <label className="flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed border-border rounded-lg p-4 text-sm text-muted-foreground hover:border-primary hover:text-primary transition">
-                                    <UploadCloud className="w-5 h-5" />
-                                    <span>Selecionar imagens</span>
-                                    <Input
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleFilesChange}
-                                    />
-                                </label>
-
-                                {files.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                                        {files.map((file) => (
-                                            <div
-                                                key={file.name + file.size}
-                                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted"
-                                            >
-                                                <ImageIcon className="w-3 h-3" />
-                                                <span className="max-w-[160px] truncate">
-                          {file.name}
-                        </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {files.length === 0 && (
-                                    <p className="text-xs text-muted-foreground">
-                                        Se quiser, pode salvar sem foto também 💌
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            size="lg"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "Salvando..." : "Salvar memória 💌"}
-                        </Button>
-                    </form>
-                </Card>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Título da Memória</Label>
+              <Input
+                id="title"
+                type="text"
+                placeholder="Ex: Nosso primeiro encontro"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
             </div>
-        </div>
-    );
+
+            <div className="space-y-2">
+              <Label htmlFor="date">Data</Label>
+              <DatePicker 
+                date={date}
+                onDateChange={setDate}
+                placeholder="Escolha a data desta memória especial"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="photos">Fotos (em breve)</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground">
+                Upload de fotos será adicionado em breve
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full" size="lg">
+              Salvar Memória
+            </Button>
+          </form>
+        </Card>
+      </div>
+    </div>
+  );
 }

@@ -7,26 +7,24 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AddEntry from "./pages/AddEntry";
 import NotFound from "./pages/NotFound";
-import AuthCallback from "./pages/AuthCallback"; // <--- NOVO
 
 const queryClient = new QueryClient();
 
 const App = () => (
-    <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/add-entry" element={<AddEntry />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} /> {/* NOVO */}
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </BrowserRouter>
-        </TooltipProvider>
-    </QueryClientProvider>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/add-entry" element={<AddEntry />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;
