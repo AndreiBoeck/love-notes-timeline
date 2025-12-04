@@ -195,8 +195,3 @@ export function DatePicker({ date, onDateChange, placeholder = "dd/mm/aaaa" }: D
         </div>
     );
 }
-
-// Função utilitária para formatar data no padrão do backend
-export function formatDateForBackend(date: Date): string {
-    return format(date, "dd-MM-yyyy");
-}

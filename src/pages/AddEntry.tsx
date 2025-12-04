@@ -11,12 +11,13 @@ import {
     Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { DatePicker, formatDateForBackend } from "@/components/DatePicker";
+import { DatePicker } from "@/components/DatePicker";
 import {
     createMemory,
     getPresignedUrl,
     uploadFileToPresignedUrl,
 } from "@/lib/api";
+import {format} from "date-fns";
 
 export default function AddEntry() {
     const [title, setTitle] = useState("");
@@ -73,7 +74,7 @@ export default function AddEntry() {
             }
 
             // 2) Data escolhida no DatePicker, formato dd-mm-yyyy
-            const memoryDate = formatDateForBackend(date);
+            const memoryDate = format(date, "yyyy-MM-dd");
 
             // 3) Cria a memória no back
             //    👉 imagens são opcionais, mas sempre mandamos fileKeys (pode ser [])
