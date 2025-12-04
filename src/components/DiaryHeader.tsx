@@ -1,7 +1,7 @@
 import { Heart } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import heroImage from "@/assets/hero-image.png";
+import heroImage from "@/assets/hero-image.jpg";
 
 interface DiaryHeaderProps {
   isLoggedIn: boolean;
