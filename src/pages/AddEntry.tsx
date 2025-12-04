@@ -82,7 +82,7 @@ export default function AddEntry() {
             //    👉 imagens são opcionais, mas sempre mandamos fileKeys (pode ser [])
             await createMemory({
                 title,
-                description: "",
+                description,
                 memoryDate,
                 fileKeys,
             });
