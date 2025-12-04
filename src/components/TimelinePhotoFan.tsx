@@ -25,6 +25,8 @@ export const TimelinePhotoFan = ({ photos }: TimelinePhotoFanProps) => {
         return `${S3_BASE_URL}/${normalized}`;
     };
 
+    console.log(photos.map(resolvePhotoUrl));
+
     return (
         <div
             className="relative w-64 h-48 cursor-pointer"
