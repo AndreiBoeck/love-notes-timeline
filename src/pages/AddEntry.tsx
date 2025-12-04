@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Heart,
     ArrowLeft,
@@ -21,6 +22,7 @@ import {format} from "date-fns";
 
 export default function AddEntry() {
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
     const [date, setDate] = useState<Date | undefined>();
     const [files, setFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,7 +117,7 @@ export default function AddEntry() {
                         <Heart className="w-6 h-6 text-primary animate-pulse" />
                         <div>
                             <h1 className="text-2xl font-bold text-primary">
-                                Nova memória de vocês 💖
+                                Nova memória nossa 💖
                             </h1>
                             <p className="text-sm text-muted-foreground">
                                 Registra mais um momento fofinho na linha do tempo.
@@ -135,6 +137,18 @@ export default function AddEntry() {
                                 onChange={(e) => setTitle(e.target.value)}
                             />
                         </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Descrição</Label>
+                            <Textarea
+                                id="description"
+                                placeholder="Ex: Onde ele foi, como ele foi..."
+                                className="min-h-[120px] resize-y"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                        </div>
+
 
                         {/* DATA */}
                         <div className="space-y-2">
