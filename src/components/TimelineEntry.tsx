@@ -9,12 +9,11 @@ interface TimelineEntryProps {
 
 export const TimelineEntry = ({ title, date, photos, isLeft = false }: TimelineEntryProps) => {
     const formatDate = (dateString: string) => {
-        const d = new Date(dateString);
-        const day = String(d.getDate()).padStart(2, "0");
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const year = d.getFullYear();
+        const [year, month, day] = dateString.split("-");
         return `${day}/${month}/${year}`;
     };
+    console.log(date)
+    console.log(formatDate(date))
     return (
     <div className={cn(
       "flex items-center gap-8 mb-16 animate-fade-in",
