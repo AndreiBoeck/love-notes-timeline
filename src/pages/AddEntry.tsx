@@ -29,8 +29,24 @@ export default function AddEntry() {
     const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = event.target.files;
         if (!selected) return;
-        const arr = Array.from(selected);
-        setFiles(arr);
+
+        const newFiles = Array.from(selected);
+
+        setFiles((prev) => {
+            // evita duplicados (mesmo nome/tamanho/lastModified)
+            const existingKeys = new Set(
+                prev.map((f) => `${f.name}-${f.size}-${f.lastModified}`)
+            );
+
+            const filteredNew = newFiles.filter(
+                (f) => !existingKeys.has(`${f.name}-${f.size}-${f.lastModified}`)
+            );
+
+            return [...prev, ...filteredNew];
+        });
+
+        // permite selecionar o mesmo arquivo de novo se quiser
+        event.target.value = "";
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
